@@ -22,7 +22,7 @@
             overflow-x: hidden;
         }
 
-        /* Add beautiful hexagon pattern overlay */
+        /* Hexagon pattern remains the same */
         body::before {
             content: '';
             position: fixed;
@@ -50,7 +50,7 @@
         }
 
         .branding {
-            position: fixed;
+            position: absolute; /* Changed from fixed to absolute */
             top: 30px;
             left: 50%;
             transform: translateX(-50%);
@@ -58,7 +58,6 @@
             font-size: 0.8rem;
             letter-spacing: 1px;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
         }
 
         h1 {
@@ -107,15 +106,16 @@
         }
 
         .image-container {
-            margin: 15px 0;
+            margin: 15px auto;
             display: flex;
             justify-content: center;
             align-items: center;
+            max-width: 300px;
         }
 
         .image-container img {
-            width: 300px;
-            height: 300px;
+            width: 100%;
+            height: auto;
             object-fit: contain;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -125,8 +125,9 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px; /* Reduced from 20px */
+            gap: 10px;
             padding: 20px;
+            flex-direction: row; /* Default for desktop */
         }
 
         .drawing-container img {
@@ -150,21 +151,19 @@
             font-family: 'Space Mono', monospace;
         }
 
+        .canvas-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+        }
+
         canvas {
             border: 2px solid #764ba2;
             border-radius: 10px;
             background: white;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 300px;
-            height: 300px;
-            position: relative;
-        }
-
-        /* Add reference circle style */
-        .canvas-container {
-            position: relative;
-            width: 300px;
-            height: 300px;
+            width: 100%;
+            height: 100%;
         }
 
         .reference-circle {
@@ -245,6 +244,33 @@
             color: #4a4a4a;
             margin-bottom: 15px;
             font-size: 0.9rem;
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+        }
+
+        canvas {
+            border: 2px solid #764ba2;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            height: 100%;
+        }
+
+        .reference-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            pointer-events: none;
         }
     </style>
 </head>
