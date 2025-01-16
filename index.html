@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Are You Colour Blind?</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Space Mono', monospace;
+        }
+
+        body {
+            min-height: 100vh;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Add beautiful hexagon pattern overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.1;
+            background:
+                linear-gradient(30deg, #ffffff 12%, transparent 12.5%, transparent 87%, #ffffff 87.5%, #ffffff),
+                linear-gradient(150deg, #ffffff 12%, transparent 12.5%, transparent 87%, #ffffff 87.5%, #ffffff),
+                linear-gradient(30deg, #ffffff 12%, transparent 12.5%, transparent 87%, #ffffff 87.5%, #ffffff),
+                linear-gradient(150deg, #ffffff 12%, transparent 12.5%, transparent 87%, #ffffff 87.5%, #ffffff),
+                linear-gradient(60deg, #ffffff 25%, transparent 25.5%, transparent 75%, #ffffff 75%, #ffffff),
+                linear-gradient(60deg, #ffffff 25%, transparent 25.5%, transparent 75%, #ffffff 75%, #ffffff);
+            background-size: 40px 70px;
+            background-position: 0 0, 0 0, 20px 35px, 20px 35px, 0 0, 20px 35px;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .branding {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        h1 {
+            color: white;
+            margin-top: 60px;
+            margin-bottom: 8px;
+            font-size: 2rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .test-container, .welcome-container, .result-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .welcome-container {
+            max-width: 600px;
+            margin: 50px auto;
+            text-align: left;
+            padding: 30px;
+        }
+
+        .welcome-container h3 {
+            margin-bottom: 15px;
+            color: #4a4a4a;
+        }
+
+        .welcome-container ul {
+            margin: 20px 0;
+            padding-left: 20px;
+        }
+
+        .welcome-container li {
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .image-container {
+            margin: 15px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-container img {
+            width: 300px;
+            height: 300px;
+            object-fit: contain;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .drawing-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px; /* Reduced from 20px */
+            padding: 20px;
+        }
+
+        .drawing-container img {
+            width: 300px;
+            height: 300px;
+            object-fit: contain;
+        }
+
+        .input-container {
+            margin: 15px 0;
+        }
+
+        input[type="number"] {
+            width: 80px;
+            padding: 8px;
+            font-size: 1rem;
+            border: 2px solid #764ba2;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 15px;
+            font-family: 'Space Mono', monospace;
+        }
+
+        canvas {
+            border: 2px solid #764ba2;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            height: 300px;
+            position: relative;
+        }
+
+        /* Add reference circle style */
+        .canvas-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+        }
+
+        .reference-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            font-family: 'Space Mono', monospace;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button:disabled {
+            background: linear-gradient(135deg, #ccc 0%, #999 100%);
+            cursor: not-allowed;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .clear-button {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .result-container {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .result-container h3 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #4a4a4a;
+        }
+
+        .result-message {
+            font-size: 1.4rem; /* Increased size since it's now the main focus */
+            margin: 30px 0;
+            padding: 20px;
+            border-radius: 8px;
+            background: rgba(118, 75, 162, 0.1);
+            line-height: 1.4;
+        }
+
+        #questionNumber {
+            color: #4a4a4a;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="branding">alvin.fun</div>
+    <div class="container">
+        <h1>Are You Colour Blind?</h1>
+        <h2>Discover the world of colours, through your eyes!</h2>
+        
+        <div id="welcomeScreen" class="welcome-container">
+            <h3>Welcome to the Color Blindness Test</h3>
+            <p>This test consists of two parts:</p>
+            <ul>
+                <li>11 Numeric Questions</li>
+                <li>6 Pattern Questions</li>
+            </ul>
+            <p>Instructions:</p>
+            <ul>
+                <li>For numeric questions, enter the number you see in the image</li>
+                <li>For pattern questions, draw the pattern you see, on the drawing canvas</li>
+                <li>Take your time and ensure good lighting conditions</li>
+            </ul>
+            <div class="controls">
+                <button class="button" onclick="startTest()">Start Test</button>
+            </div>
+        </div>
+
+        <div id="testContainer" class="test-container hidden">
+            <div id="questionNumber"></div>
+            <div id="numberSection">
+                <div class="image-container">
+                    <img id="testImage" src="/api/placeholder/300/300" alt="Color blind test image">
+                </div>
+                
+                <div id="numberInput" class="input-container">
+                    <input type="number" id="answerInput" min="0" max="99" placeholder="Number">
+                </div>
+            </div>
+            
+            <div id="drawingSection" class="hidden">
+                <div class="drawing-container">
+                    <img id="drawingTestImage" src="/api/placeholder/300/300" alt="Pattern to draw">
+                    <div class="canvas-container">
+                        <canvas id="drawingCanvas" width="300" height="300"></canvas>
+                        <div class="reference-circle"></div>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="button clear-button" onclick="clearCanvas()">Clear Drawing</button>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button id="nextButton" class="button">Next Question</button>
+            </div>
+        </div>
+
+        <div id="resultContainer" class="result-container hidden">
+            <h3>Test Results</h3>
+            <div id="resultMessage" class="result-message"></div>
+            <div class="controls">
+                <button class="button" onclick="location.reload()">Take Test Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 0;
+        let answers = {};
+        const numberQuestions = ['16', '8', '12', '36', '7', '13', '48', '4', '9', '15', '23'];
+        const designQuestions = ['a', 'b', 'c', 'd', 'e', 'f'];
+        const totalQuestions = numberQuestions.length + designQuestions.length;
+
+        // Canvas variables
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+
+        function startTest() {
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('testContainer').classList.remove('hidden');
+            updateQuestion();
+            setupCanvas();
+        }
+
+        function init() {
+            document.getElementById('nextButton').addEventListener('click', handleNext);
+            document.getElementById('answerInput').addEventListener('input', validateInput);
+        }
+
+        function updateQuestion() {
+            const questionNum = currentQuestion + 1;
+            document.getElementById('questionNumber').textContent = 
+                `Question ${questionNum} of ${totalQuestions}`;
+            
+            if (currentQuestion < numberQuestions.length) {
+                document.getElementById('numberSection').classList.remove('hidden');
+                document.getElementById('drawingSection').classList.add('hidden');
+                document.getElementById('answerInput').value = '';
+                document.getElementById('testImage').src = `${numberQuestions[currentQuestion]}.jpg`;
+            } else {
+                document.getElementById('numberSection').classList.add('hidden');
+                document.getElementById('drawingSection').classList.remove('hidden');
+                document.getElementById('drawingTestImage').src = 
+                    `${designQuestions[currentQuestion - numberQuestions.length]}.jpg`;
+                clearCanvas();
+            }
+        }
+
+        function calculateScore() {
+            let score = 0;
+            for (let i = 0; i < numberQuestions.length; i++) {
+                if (answers[i] === numberQuestions[i]) {
+                    score++;
+                }
+            }
+            return score;
+        }
+
+        function showResults() {
+            const score = calculateScore();
+            document.getElementById('testContainer').classList.add('hidden');
+            document.getElementById('resultContainer').classList.remove('hidden');
+
+            let message = '';
+            if (score >= 10) {
+                message = "Woohoo! Your color vision is spot on! COLOUR BLINDNESS = NEGATIVE";
+            } else if (score >= 7) {
+                message = "Hmm, some colors might be playing tricks on you. COLOUR BLINDNESS = 50%";
+            } else {
+                message = "Looks like colors are a bit tricky for you. COLOUR BLINDNESS = POSITIVE 100%";
+            }
+            document.getElementById('resultMessage').textContent = message;
+        }
+
+        function handleNext() {
+            if (currentQuestion < numberQuestions.length) {
+                const answer = document.getElementById('answerInput').value;
+                if (!answer) {
+                    alert('Please enter a number');
+                    return;
+                }
+                answers[currentQuestion] = answer;
+            } else {
+                answers[currentQuestion] = canvas.toDataURL();
+            }
+
+            currentQuestion++;
+            
+            if (currentQuestion >= totalQuestions) {
+                showResults();
+                return;
+            }
+
+            updateQuestion();
+        }
+
+        function validateInput(e) {
+            const input = e.target;
+            let value = input.value;
+            value = value.replace(/[^0-9]/g, '');
+            if (value.length > 2) {
+                value = value.slice(0, 2);
+            }
+            input.value = value;
+        }
+
+        function setupCanvas() {
+            ctx.strokeStyle = '#ff0000';
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            ctx.lineWidth = 2;
+
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+
+            canvas.addEventListener('touchstart', startDrawingTouch);
+            canvas.addEventListener('touchmove', drawTouch);
+            canvas.addEventListener('touchend', stopDrawing);
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+        }
+
+        function startDrawingTouch(e) {
+            e.preventDefault();
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            [lastX, lastY] = [touch.clientX - rect.left, touch.clientY - rect.top];
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+        }
+
+        function drawTouch(e) {
+            if (!isDrawing) return;
+            e.preventDefault();
+            
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            const offsetX = touch.clientX - rect.left;
+            const offsetY = touch.clientY - rect.top;
+
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(offsetX, offsetY);
+            ctx.stroke();
+            [lastX, lastY] = [offsetX, offsetY];
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        init();
+    </script>
+</body>
+</html>
